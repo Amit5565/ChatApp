@@ -4,8 +4,9 @@ var app=express();
 var path=require('path');
 var socketIO=require('socket.io');
 const publicPath=path.join(__dirname,"../public");
-var port=process.env.PORT||8000;
+var port=process.env.PORT||9000;
 var {generatemsg,generatelocationmsg}=require('./utils/message');
+var {isRealString}=require('./utils/validation.js');
 var server=http.createServer(app);
 var io=socketIO(server);
 app.use(express.static(publicPath));
@@ -17,9 +18,19 @@ io.on("connection",(socket)=>{
     console.log("User was disconnected");
   })
 
-  socket.emit("newMsg",generatemsg("Admin","Welcome to the chat app"))
-  socket.broadcast.emit("newMsg",generatemsg("Admin","New User Joined"))
 
+  socket.on("join",(params,callback)=>{
+
+   if(!isRealString(params.name) || !isRealString(params.room)){
+     callback("Name and room are required")
+   }
+   socket.join(params.room);
+
+   socket.emit("newMsg",generatemsg("Admin","Welcome to the chat app"))
+   // socket.broadcast.emit("newMsg",generatemsg("Admin","New User Joined"))
+   socket.broadcast.to(params.room).emit("newMsg",generatemsg("Admin",`${params.name} has joined`))
+     callback();
+  })
   // socket.emit("newMsg",{
   //   from:"amitkumarsingh2750@gmail.com",
   //   text:"Gd morning my friend",
