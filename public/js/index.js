@@ -1,4 +1,26 @@
 var socket=io();//connection created
+
+//AUTO SCROLE function
+
+function scrollToBottom(){
+  // Selectors
+  var messages=$("#messages");
+  var newMessage=messages.children("li:last-child");
+  //Height
+  var clientHeight=messages.prop("clientHeight");
+  var scrollTop=messages.prop("scrollTop");
+  var scrollHeight=messages.prop("scrollHeight");
+  var newMessageHeight=newMessage.innerHeight();
+  var lastMessageHeight=newMessage.prev().innerHeight();
+  if(clientHeight+scrollTop+newMessageHeight+lastMessageHeight>=scrollHeight){
+    messages.scrollTop(scrollHeight);
+  }
+}
+
+
+
+
+
 socket.on("connect",function(){
   console.log("Connection Established");
 })
@@ -21,6 +43,7 @@ socket.on("newMsg",function(message){
     createAt:formattedtime
   });
   $("#messages").append(html);
+  scrollToBottom();
   // console.log("New Message",message);
   // var li=$("<li></li>");
   // li.text(`${message.from} ${formattedtime}: ${message.text}`);
@@ -62,6 +85,7 @@ socket.on("newLocationMsg",function(message){
   // a.attr("href",message.url);
   // li.append(a);
     $("#messages").append(html);
+    scrollToBottom();
 })
 
 //geocode
