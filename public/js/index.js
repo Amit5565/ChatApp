@@ -13,11 +13,18 @@ socket.on("newEmail",function(email){
 
 socket.on("newMsg",function(message){
 
-  var formattedtime=moment(message.createAt).format("h:mm a");
-  console.log("New Message",message);
-  var li=$("<li></li>");
-  li.text(`${message.from} ${formattedtime}: ${message.text}`);
-  $("#messages").append(li);
+  var template=$("#message-template").html();
+   var formattedtime=moment(message.createAt).format("h:mm a");
+  var html=Mustache.render(template,{
+    from:message.from,
+    text:message.text,
+    createAt:formattedtime
+  });
+  $("#messages").append(html);
+  // console.log("New Message",message);
+  // var li=$("<li></li>");
+  // li.text(`${message.from} ${formattedtime}: ${message.text}`);
+  // $("#messages").append(li);
 })
 // socket.emit("createMsg",{
 //   from:"spamemails.5565@gmail.com",
@@ -42,12 +49,19 @@ $("#message-form").on("submit",function(e){
 socket.on("newLocationMsg",function(message){
 
    var formattedtime=moment(message.createAt).format("h:mm a");
-  var li=$("<li></li>");
-  var a=$('<a target="_blank">My current location</a>');
-  li.text(`${message.from}: ${formattedtime}:`);
-  a.attr("href",message.url);
-  li.append(a);
-    $("#messages").append(li);
+
+   var template=$("#location-message-template").html();
+   var html=Mustache.render(template,{
+     from:message.from,
+     url:message.url,
+     createAt:formattedtime,
+   })
+  // var li=$("<li></li>");
+  // var a=$('<a target="_blank">My current location</a>');
+  // li.text(`${message.from}: ${formattedtime}:`);
+  // a.attr("href",message.url);
+  // li.append(a);
+    $("#messages").append(html);
 })
 
 //geocode
