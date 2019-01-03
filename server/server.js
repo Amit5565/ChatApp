@@ -5,7 +5,7 @@ var path=require('path');
 var socketIO=require('socket.io');
 const publicPath=path.join(__dirname,"../public");
 var port=process.env.PORT||7000;
-var {generatemsg}=require('./utils/message');
+var {generatemsg,generatelocationmsg}=require('./utils/message');
 var server=http.createServer(app);
 var io=socketIO(server);
 app.use(express.static(publicPath));
@@ -40,6 +40,11 @@ io.on("connection",(socket)=>{
     //   text:message.text,
     //   createAt:new Date().getTime()
     // })
+  })
+
+
+  socket.on("createLocationMessage",(coords)=>{
+    io.emit("newLocationMsg",generatelocationmsg("Admin",coords.latitude,coords.longitude))
   })
 })
 
