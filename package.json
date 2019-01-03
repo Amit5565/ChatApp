@@ -6,12 +6,13 @@
   "scripts": {
     "test": "mocha **/*utils.test.js",
     "start": "node server/server.js",
-    "test-new":"nodemon --exec \"npm test\""
+    "test-new": "nodemon --exec \"npm test\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.4",
+    "moment": "^2.23.0",
     "mongodb": "^3.1.10",
     "socket.io": "^2.2.0"
   },
