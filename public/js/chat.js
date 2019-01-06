@@ -24,7 +24,8 @@ function scrollToBottom(){
 socket.on("connect",function(){
 
 var params=jQuery.deparam(window.location.search)
-  socket.emit("join",params,function(err){
+  
+socket.emit("join",params,function(err){
     if(err){
         alert(err);
        window.location.href="/";
@@ -119,4 +120,20 @@ locationbutton.on("click",function(){
     alert("Unable to fetch location");
   })
 
+})
+
+
+
+//Updating people list
+
+socket.on("updateUserList",function(users){
+
+  var ol=$("<ol></ol>");
+  for(var i=0;i<users.length;i++)
+  {
+    ol.append($("<li></li>").text(users[i]));;
+  }
+  $("#users").html(ol);
+  console.log("Users List",users);
+  
 })

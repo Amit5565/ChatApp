@@ -5,26 +5,33 @@ var path=require('path');
 var socketIO=require('socket.io');
 const publicPath=path.join(__dirname,"../public");
 var port=process.env.PORT||9000;
+
+
 var {generatemsg,generatelocationmsg}=require('./utils/message');
 var {isRealString}=require('./utils/validation.js');
+var {Users}=require("./utils/users");
+
 var server=http.createServer(app);
 var io=socketIO(server);
+var users=new Users()
+
 app.use(express.static(publicPath));
 
 io.on("connection",(socket)=>{
   console.log("New User Connected");
 
-  socket.on("disconnect",()=>{
-    console.log("User was disconnected");
-  })
-
 
   socket.on("join",(params,callback)=>{
 
    if(!isRealString(params.name) || !isRealString(params.room)){
-     callback("Name and room are required")
+      return callback("Name and room are required")
    }
+
    socket.join(params.room);
+   users.removeUser(socket.id);
+   users.addUser(socket.id,params.name,params.room)
+   
+   io.to(params.room).emit("updateUserList",users.getUserList(params.room))
 
    socket.emit("newMsg",generatemsg("Admin","Welcome to the chat app"))
    // socket.broadcast.emit("newMsg",generatemsg("Admin","New User Joined"))
@@ -56,6 +63,17 @@ io.on("connection",(socket)=>{
 
   socket.on("createLocationMessage",(coords)=>{
     io.emit("newLocationMsg",generatelocationmsg("Admin",coords.latitude,coords.longitude))
+  })
+
+
+  socket.on("disconnect",()=>{
+
+    var user=users.removeUser(socket.id);
+    if(user){
+      io.to(user.room).emit("updateUserList",users.getUserList(user.room))
+      io.to(user.room).emit("newMsg",generatemsg("Admin",`${user.name} has left`));
+    }
+    console.log("User was disconnected");
   })
 })
 
